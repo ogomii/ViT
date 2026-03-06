@@ -25,6 +25,33 @@ class DeformableViT_config:
         self.n_heads = _n_heads
         self.n_layers = _n_layers
         self.dropout_rate = _dropout_rate
+    
+    def to_dict(self):
+        return {
+            'channels': self.channels,
+            'height': self.height,
+            'width': self.width,
+            'n_patches': self.n_patches,
+            'window_size': self.window_size,
+            'd_model': self.d_model,
+            'n_heads': self.n_heads,
+            'n_layers': self.n_layers,
+            'dropout_rate': self.dropout_rate
+        }
+    
+    @classmethod
+    def from_dict(cls, config_dict):
+        return cls(
+            _channels=config_dict['channels'],
+            _height=config_dict['height'],
+            _width=config_dict['width'],
+            _n_patches=config_dict['n_patches'],
+            _window_size=config_dict['window_size'],
+            _d_model=config_dict['d_model'],
+            _n_heads=config_dict['n_heads'],
+            _n_layers=config_dict['n_layers'],
+            _dropout_rate=config_dict['dropout_rate']
+        )
 
 
 class PatchEmbed(nn.Module):

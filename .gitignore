@@ -1,3 +1,4 @@
 runs/
 cifar-10-batches-py
 __pycache__/
+weights/*
