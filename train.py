@@ -15,10 +15,10 @@ vit_config = ViT_config(
     _channels=3,
     _height=32,
     _width=32,
-    _n_patches=4,
+    _n_patches=8,
     _d_model=1024,
     _n_heads=16,
-    _n_layers=24,
+    _n_layers=12,
     _dropout_rate=0.2
 )
 
@@ -36,7 +36,7 @@ deformable_vit_config = DeformableViT_config(
 save_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
 training_config = TrainingConfig(
-                    n_epochs=10,
+                    n_epochs=30,
                     batch_size=80, 
                     learning_rate=1e-5,
                     loss_fn=torch.nn.CrossEntropyLoss(),
@@ -60,8 +60,8 @@ val_loader = torch.utils.data.DataLoader(testset, batch_size=training_config.bat
 classes = trainset.classes
 
 print("Creating model...")
-# m = DeformableViT(deformable_vit_config, len(classes))
-m = ViT(vit_config, len(classes))
+m = DeformableViT(deformable_vit_config, len(classes))
+# m = ViT(vit_config, len(classes))
 model = m.to(device)
 print(sum(p.numel() for p in model.parameters())/1e6, 'M parameters')
 
@@ -73,5 +73,5 @@ optim = torch.optim.Adam(
 writer = SummaryWriter()
 
 print("Starting training loop...")
-# train_loop(model, training_config, train_loader, val_loader, optim, device, writer, deformable_vit_config)
-train_loop(model, training_config, train_loader, val_loader, optim, device, writer, vit_config)
+train_loop(model, training_config, train_loader, val_loader, optim, device, writer, deformable_vit_config)
+# train_loop(model, training_config, train_loader, val_loader, optim, device, writer, vit_config)

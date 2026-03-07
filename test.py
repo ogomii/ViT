@@ -17,7 +17,7 @@ test_loader = torch.utils.data.DataLoader(testset, batch_size=128,
                                           shuffle=False, num_workers=2)
 
 # Load model configuration
-model_path = '/home/ogomi/AI/ViT/weights/20260306_192343.pth'
+model_path = '/home/ogomi/AI/ViT/weights/20260307_145439.pth'
 config_path = model_path.replace('.pth', '.json')
 
 with open(config_path, 'r') as f:

@@ -10,7 +10,7 @@ class DeformableViT_config:
                 _height = 32, 
                 _width = 32,
                 _n_patches = 4,
-                _window_size = 7,
+                _window_size = 2,
                 _d_model = 1024,
                 _n_heads = 16,
                 _n_layers = 24,
@@ -114,6 +114,7 @@ class Attention(nn.Module):
 class MultiHeadAttention(nn.Module):
     def __init__(self, config: DeformableViT_config):
         super().__init__()
+        assert config.d_model % config.n_heads == 0
         self.att_heads =nn.ModuleList([Attention(config) for _ in range(config.n_heads)]) # n_heads x (B, T, C/n_heads)
         self.linear_projection = nn.Linear(config.d_model, config.d_model)
         self.dropout = nn.Dropout(config.dropout_rate)
@@ -148,7 +149,7 @@ class W_MSA(nn.Module): # Window Multi-Head Self Attention
         self.window_size = config.window_size
         self.n_patches = config.n_patches # number of patches in H or W
         self.lnorm_1 = nn.LayerNorm(config.d_model)
-        self.att = MultiHeadAttention(config)
+        self.att_local = MultiHeadAttention(config)
         self.lnorm_2 = nn.LayerNorm(config.d_model)
         self.ffw = FeedForward(config)
 
@@ -156,24 +157,26 @@ class W_MSA(nn.Module): # Window Multi-Head Self Attention
         B, T, C = x.shape # Batch, Patches, Embedded dim
         assert T % self.window_size == 0
         x = self.lnorm_1(x) # (B, T, C)
-        # reshape into (B, windows, window_size, window_size, C)
         height = self.n_patches//self.window_size
         width = self.n_patches//self.window_size
-        x = x.reshape(B, 
-                        height,
-                        self.window_size, 
-                        width,
-                        self.window_size,
-                        C) \
-                        .permute(0,1,3,2,4,5) \
-                        .reshape(B,-1,self.window_size,self.window_size,C) # reduce hight and width
-        for i in range(x.shape[1]): # process every window using attention
-            x[:, i, :, :, :] = x[:, i, :, :, :] + self.att(x[:, i, :, :, :].flatten(start_dim=1,end_dim=2)).reshape(B,self.window_size, self.window_size, C)
+        x = x\
+            .reshape(B, height, self.window_size, width, self.window_size, C) \
+            .permute(0,1,3,2,4,5) \
+            .reshape(B,height*width,self.window_size,self.window_size,C) # (B,T,C) -> (B, H*W, Wnd, Wnd, C)
+        
+        # Process all windows in parallel, dims 0 and 1 flattened due to attn impl. requirimg 3 dim tensors
+        num_windows = height * width
+        x_flat = x.reshape(B*num_windows, self.window_size*self.window_size, C)  # (B*num_windows, window_size*window_size, C)
+        att_out = self.att_local(x_flat)  # (B*num_windows, window_size*window_size, C)
+        x = (x.reshape(B*num_windows, self.window_size*self.window_size, C) + att_out) \
+            .reshape(B, num_windows, self.window_size, self.window_size, C)
+        
         #switch back to (B, T, C)
-        x = x.reshape(B, height, width, self.window_size, self.window_size, C)\
+        x = x\
+            .reshape(B, height, width, self.window_size, self.window_size, C)\
             .permute(0,1,3,2,4,5)\
-                .reshape(B, self.n_patches, self.n_patches, C)\
-                    .flatten(start_dim=1,end_dim=2)
+            .reshape(B, self.n_patches, self.n_patches, C)\
+            .flatten(start_dim=1,end_dim=2)
         x = x + self.ffw(self.lnorm_2(x))
         return x
 
