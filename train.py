@@ -26,11 +26,11 @@ deformable_vit_config = DeformableViT_config(
     _channels = 3,
     _height = 32, 
     _width = 32,
-    _n_patches = 4,
+    _n_patches = 8,
     _window_size = 2, # how many patches in a window dim
     _d_model = 1024,
-    _n_heads = 8,
-    _n_layers = 12,
+    _n_heads = 16,
+    _n_layers = 24,
     _dropout_rate = 0.2
 )
 save_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")

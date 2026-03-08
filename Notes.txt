@@ -1,27 +1,27 @@
 ViT:
 2 layer bullshit net, 101 epochs, 3M params:
-train_loss: 0,3261, train acc: 92 %
-val_loss: 8.31, acc: 50 %
+    train_loss: 0,3261, train acc: 92 %
+    val_loss: 8.31, acc: 50 %
 
 2 layer bullshit net with dropout, 101 epochs, 3M params:
-train_loss: 0,65, train acc: 91 %
-val_loss: 4.56, acc: 51 %
+    train_loss: 0,65, train acc: 91 %
+    val_loss: 4.56, acc: 51 %
 
 Attention alone, 31 epochs, 0.07M params:
-train_loss: 1.913, train acc: 31 %
-val_loss: 1.88, acc: 31 %
+    train_loss: 1.913, train acc: 31 %
+    val_loss: 1.88, acc: 31 %
 
 Attention with mlp 3 layers, 31 epochs, 0.26M params:
-train_loss: 1.482, train acc: 51 %
-val_loss: 1.57, acc: 43 %
+    train_loss: 1.482, train acc: 51 %
+    val_loss: 1.57, acc: 43 %
 
 MultiHeadAttention 3 layers 8 heads, 128 d_model, 50 epochs, 2.39M params:
-train_loss: 1.085, train acc: 82 %
-val_loss: 1.748, acc: 45 %
+    train_loss: 1.085, train acc: 82 %
+    val_loss: 1.748, acc: 45 %
 
 MultiHeadAttention 24 layers 16 heads, 1024 d_model, 50 epochs, 151M params:
-train_loss: 1.21, train acc: 53 %
-val_loss: 1.22, acc: 51 %
+    train_loss: 1.21, train acc: 53 %
+    val_loss: 1.22, acc: 51 %
 
 The final version sould be trained for much longer than 50 epochs, but who has time for that
 
@@ -35,3 +35,8 @@ DeformableViT, CIFAR-10:
 W_MSA is local only, at 75m params (12 layers) it gets enthropy of about 1.46
     Let's add global attention at the end of W_MSA with 8 layers to keep n params close to original
     With that set up there is 76m params, loss: 1.52 (overfitting quite a lot)
+
+MultiHeadAttention 24 layers 16 heads, 1024 d_model, 16 epochs, 151M params:
+    train_loss: 1.15
+    val_loss: 1.23
+    val_acc: 56.71%
