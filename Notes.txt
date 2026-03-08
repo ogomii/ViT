@@ -1,3 +1,36 @@
+ViT:
+2 layer bullshit net, 101 epochs, 3M params:
+train_loss: 0,3261, train acc: 92 %
+val_loss: 8.31, acc: 50 %
+
+2 layer bullshit net with dropout, 101 epochs, 3M params:
+train_loss: 0,65, train acc: 91 %
+val_loss: 4.56, acc: 51 %
+
+Attention alone, 31 epochs, 0.07M params:
+train_loss: 1.913, train acc: 31 %
+val_loss: 1.88, acc: 31 %
+
+Attention with mlp 3 layers, 31 epochs, 0.26M params:
+train_loss: 1.482, train acc: 51 %
+val_loss: 1.57, acc: 43 %
+
+MultiHeadAttention 3 layers 8 heads, 128 d_model, 50 epochs, 2.39M params:
+train_loss: 1.085, train acc: 82 %
+val_loss: 1.748, acc: 45 %
+
+MultiHeadAttention 24 layers 16 heads, 1024 d_model, 50 epochs, 151M params:
+train_loss: 1.21, train acc: 53 %
+val_loss: 1.22, acc: 51 %
+
+The final version sould be trained for much longer than 50 epochs, but who has time for that
+
+number of patches doesn't inpact number of parameters in a meaningfull way, but due to 
+higher nubmer of patches, attention will be computer much longer, the dimentions 
+of q,k and v do change significantyl (O^2). Hogher resoultion images will need to be trained 
+longer, and will take up more vram due to the need to store results
+
+
 DeformableViT, CIFAR-10:
 W_MSA is local only, at 75m params (12 layers) it gets enthropy of about 1.46
     Let's add global attention at the end of W_MSA with 8 layers to keep n params close to original

@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import json
 import os
-from common import TrainingConfig
+from common.utils import TrainingConfig
 
 def save_model(model, path, config=None):
     print(f"Saving model to {path}...")

@@ -4,10 +4,10 @@ import torchvision
 import torchvision.transforms as transforms
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter  # loss tracking
-from common import TrainingConfig
-from ViT import ViT, ViT_config
-from DeformableViT import DeformableViT, DeformableViT_config
-from train_loop import train_loop
+from common.utils import TrainingConfig
+from models.ViT import ViT, ViT_config
+from models.DeformableViT import DeformableViT, DeformableViT_config
+from common.train_loop import train_loop
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

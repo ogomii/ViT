@@ -2,7 +2,7 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 import json
-from common import TrainingConfig
+from common.utils import TrainingConfig
 from ViT import ViT, ViT_config, device
 from DeformableViT import DeformableViT, DeformableViT_config
 
