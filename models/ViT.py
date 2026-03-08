@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from CustomModules.config import ViT_config
-from CustomModules.attention import PatchEmbed, Block
+from CustomModules.attention import Block
+from CustomModules.basic import FeedForward, PatchEmbed
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

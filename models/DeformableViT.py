@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from CustomModules.config import DeformableViT_config
-from CustomModules.attention import PatchEmbed, MultiHeadAttention, FeedForward
+from CustomModules.attention import MultiHeadAttention
+from CustomModules.basic import FeedForward, PatchEmbed
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
