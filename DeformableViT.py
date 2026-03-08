@@ -88,12 +88,12 @@ class PatchEmbed(nn.Module):
 
 
 class Attention(nn.Module):
-    def __init__(self, config: DeformableViT_config):
+    def __init__(self, config: DeformableViT_config, inner_dim: int):
         super().__init__()
-        att_embedding = config.d_model // config.n_heads
-        self.keys = nn.Linear(config.d_model, att_embedding, bias=False)
-        self.queries = nn.Linear(config.d_model, att_embedding, bias=False)
-        self.values = nn.Linear(config.d_model, att_embedding, bias=False)
+        self.inner_dim = inner_dim
+        self.keys = nn.Linear(config.d_model, inner_dim, bias=False)
+        self.queries = nn.Linear(config.d_model, inner_dim, bias=False)
+        self.values = nn.Linear(config.d_model, inner_dim, bias=False)
 
         self.drop = nn.Dropout(config.dropout_rate)
 
@@ -115,7 +115,8 @@ class MultiHeadAttention(nn.Module):
     def __init__(self, config: DeformableViT_config):
         super().__init__()
         assert config.d_model % config.n_heads == 0
-        self.att_heads =nn.ModuleList([Attention(config) for _ in range(config.n_heads)]) # n_heads x (B, T, C/n_heads)
+        self.att_heads =nn.ModuleList(
+            [Attention(config, config.d_model // config.n_heads) for _ in range(config.n_heads)]) # n_heads x (B, T, C/n_heads)
         self.linear_projection = nn.Linear(config.d_model, config.d_model)
         self.dropout = nn.Dropout(config.dropout_rate)
 
@@ -177,8 +178,9 @@ class W_MSA(nn.Module): # Window Multi-Head Self Attention
             .permute(0,1,3,2,4,5)\
             .reshape(B, self.n_patches, self.n_patches, C)\
             .flatten(start_dim=1,end_dim=2)
-        x = x + self.ffw(self.lnorm_2(x))
-        return x
+
+        out = x + self.ffw(self.lnorm_2(x))
+        return out
 
 class SW_MSA(nn.Module): # Shifted Window Multi-Head Self Attention
     def __init__(self, config: DeformableViT_config):
@@ -200,7 +202,7 @@ class DeformableViT(nn.Module):
         self.config = config
         self.patchAndEmbed = PatchEmbed(config)
         self.blocks = nn.Sequential(*[W_MSA(config) for _ in range(config.n_layers)])
-        self.out_mlp = nn.Linear(config.d_model, n_classes)
+        self.out_mlp = nn.Linear(config.d_model, n_classes, bias=False)
         # self.output_row = nn.Parameter(torch.rand(1,1,config.d_model)) # Parameter makes sure that Tensor will me added to ViT.parameters()
         self.out_layer_norm = nn.LayerNorm(config.d_model)
 
@@ -211,7 +213,6 @@ class DeformableViT(nn.Module):
         # expanded to be indifferent to examples (each example the same output row, so it can train to be a good output row)
         x = self.blocks(x)
         x = self.out_layer_norm(x)
-        # x = torch.cat([self.output_row.expand(x.shape[0],-1,-1), x], dim=1) # no needed for stage 1 and 2 (local att)
         x = F.avg_pool1d(x.permute(0,2,1), kernel_size=self.config.n_patches**2).reshape(B, -1)
         out = self.out_mlp(x)
         return out

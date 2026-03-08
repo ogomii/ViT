@@ -1,0 +1,4 @@
+DeformableViT, CIFAR-10:
+W_MSA is local only, at 75m params (12 layers) it gets enthropy of about 1.46
+    Let's add global attention at the end of W_MSA with 8 layers to keep n params close to original
+    With that set up there is 76m params, loss: 1.52 (overfitting quite a lot)
